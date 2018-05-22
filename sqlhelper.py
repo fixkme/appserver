@@ -27,15 +27,19 @@ def getDBversion(db):
     return "Database version : %s " % data
 
     
-def insert(cursor, sql, values = None):
+def insert(sql, values = None):
     
+    succeed = True
     if not sql:
         return 
     if not values:
         pass
     else:
         sql = sql % values
+        #print(sql)
     try:
+        db= pymysql.connect(LOCALHOST, USER, PASSWORD,  DBNAME)
+        cursor = db.cursor()
         # 执行sql语句
         cursor.execute(sql)
         # 提交到数据库执行
@@ -43,43 +47,64 @@ def insert(cursor, sql, values = None):
     except:
         # 如果发生错误则回滚
         db.rollback()
+        succeed = False
+        print('insert error...')
+        #raise
     finally:
         # 关闭数据库连接
         db.close()
+        return succeed
         
-def selectAll(cursor, sql):
+        
+def select_all(sql, values = None):
+    if not values:
+        pass
+    else:
+        sql = sql % values
+        #print(sql)
     try:
+        db= pymysql.connect(LOCALHOST, USER, PASSWORD,  DBNAME)
+        cursor = db.cursor()
         # 执行SQL语句
         cursor.execute(sql)
         # 获取所有记录列表
         results = cursor.fetchall()
     except:
         results = None
+        print("select all error...")
     finally:
+        db.close()
         return results
     
-def selectOne(cursor, sql):
+def select_one(sql, values = None):
+    if not values:
+        pass
+    else:
+        sql = sql % values
+        #print(sql)
     try:
+        db= pymysql.connect(LOCALHOST, USER, PASSWORD,  DBNAME)
+        cursor = db.cursor()
         # 执行SQL语句
         cursor.execute(sql)
         # 获取所有记录列表
         result = cursor.fetchone()
     except:
         result = None
+        print("select all error...")
     finally:
+        db.close()
         return result
- 
-# 打开数据库连接
-db= pymysql.connect(LOCALHOST, USER, PASSWORD,  DBNAME)
+
+def test():
     
-cursor = db.cursor()
- 
-# SQL 查询语句
-sql = "select * from t_user;"
-r = selectAll(cursor, sql)
-print(r)
-# 关闭数据库连接
-db.close()
+    sql = r"select * from t_user where nickname = '%s' and pwd = '%s';"
+    val = ('abc', '123')
+    
+    r = select_one(sql, val)
+    
+    # SQL 查询语句
+    print(not r)
 
 
 

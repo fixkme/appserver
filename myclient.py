@@ -6,15 +6,28 @@ Created on Tue May  1 00:10:26 2018
 """
 
 #客户端实现
-import socket  # 这块代码和上面的基本一致，可以参照上面的注释解释
-sk=socket.socket()
-address=("127.0.0.1",10001)
-sk.connect(address)
-while True:
-    data=bytes(input(">>>"),"utf8")
-    if str(data,"utf8")=="exit":
-        sk.close()
+import socket
+import threading 
+from PIL import Image
+import matplotlib.pyplot as plt
+
+IP = '127.0.0.1'
+PORT = 10002
+BUFFER_SIZE = 1024
+
+def run_th(sock):
+    while True:
+        data=str(sock.recv(BUFFER_SIZE),"utf8")
+        print(data)
         break
-    sk.sendall(data)
-    data=str(sk.recv(1024),"utf8")
-    print("<<<",data)
+    
+sock=socket.socket()
+address=(IP, PORT)
+sock.connect(address)
+
+message = {'name':'哈哈哈', 'password':'108955','phone':'1234567','email':'qq@qq.com'}
+sock.sendall(bytes(str(message), 'utf8'))
+
+rt = threading.Thread(target = run_th, args=(sock,))
+rt.setDaemon(True)
+rt.start()
